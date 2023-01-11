@@ -10,6 +10,11 @@ use na::{Matrix, Vector2};
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use std::io::Write;
+use std::str::FromStr;
+use ark_bls12_381::{Fr, G1Projective};
+use ark_ec::{AffineCurve, ProjectiveCurve};
+use ark_ff::{AffineCurve, ProjectiveCurve};
+use ark_ff::Zero;
 
 fn main() {
     welcome();
@@ -66,6 +71,8 @@ fn main() {
     println!("username hash written to file");
 
 
+    // let test = Fr::from_str(vec[vec.len() - 1]).unwrap();
+    // print!("{}", test);
 
     // Output the vector c
     // format should be:
@@ -76,6 +83,25 @@ fn main() {
 
     // Import x
 
+    println!("reading coefficients from file");
+    let coeffs = std::fs::read_to_string("coefficients.txt").expect("read failed");
+
+    // vec contains elements of Fr in string format
+    let vec: Vec<&str> = coeffs.split_whitespace().collect();
+    let mut vec2: Vec<Fr> = vec![];
+    for i in 0..256 {
+        let field_elm = Fr::from_str(vec[vec.len() - 1]).unwrap();
+        vec2.push(field_elm);
+    }
+
+    print!("{}", vec[vec.len() - 1]);
+
+    let mut sum = G1Projective::zero();
+    for i in 0..256 {
+        let additive = sigs[i].into_projective().mul(vec2[i]);
+        sum += additive;
+    }
+    print!("{}", sum)
 
 }
 
