@@ -9,6 +9,7 @@ use na::base::{DMatrix, Matrix2x4};
 use na::{Matrix, Vector2};
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
+use std::io::Write;
 
 fn main() {
     welcome();
@@ -40,19 +41,30 @@ fn main() {
     // compute hashed username as a linear combination of hashes of the leaked usernames
     // using same coefficients, compute signature for my username
 
-
-    let mut bit_vec: Vec<bool> = vec![];
-
-    for msg in ms.iter() {
-        let mut bits = hash_to_bits(blake2s_simd::blake2s(msg)).clone();
-        bit_vec.append(&mut bits);
-    }
-
     // Output the bit vectors making up matrix M
     // format should be:
     // b_0(m_0) b_1(m_0) ... b_255(m_0)
     // b_0(m_1) b_1(m_1) ... b_255(m_1)
     // ...
+
+    let mut file = std::fs::File::create("leaked_message_hashes.txt").expect("create failed");
+
+    for msg in ms.iter() {
+        let mut bits = hash_to_bits(blake2s_simd::blake2s(msg)).clone();
+        let str = bits_to_string(bits);
+        file.write_all(str.as_bytes()).expect("write failed");
+        file.write_all("\n".as_bytes()).expect("write failed");
+    }
+
+    println!("leaked message hashes written to file");
+
+    let mut username_file = std::fs::File::create("username_hash.txt").expect("create failed");
+    let username_bits = hash_to_bits(blake2s_simd::blake2s(username.as_bytes()));
+    let username_str = bits_to_string(username_bits);
+    username_file.write_all(username_str.as_bytes()).expect("write failed");
+
+    println!("username hash written to file");
+
 
 
     // Output the vector c
@@ -108,3 +120,30 @@ fn hash_to_bits(hash: Hash) -> Vec<bool> {
 // fn test_hash_to_bits(msg: &[u8]) {
 //     println!("{:?}", hash_to_bits(blake2s_simd::blake2s(msg)));
 // }
+
+#[test]
+fn test_bits_to_string() {
+    let test_input1 = vec![false, false, false, true];
+    let test_output1 = bits_to_string(test_input1);
+    assert_eq!(test_output1, "0001");
+
+    let test_input2 = vec![true, false, true, true];
+    let test_output2 = bits_to_string(test_input2);
+    assert_eq!(test_output2, "1011");
+
+    let test_input3 = vec![false, false, false, false];
+    let test_output3 = bits_to_string(test_input3);
+    assert_eq!(test_output3, "0000");
+}
+
+fn bits_to_string(bits: Vec<bool>) -> String {
+    let mut string = String::new();
+    for bit in bits {
+        if bit {
+            string.push('1');
+        } else {
+            string.push('0');
+        }
+    }
+    string
+}
