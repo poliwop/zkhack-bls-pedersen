@@ -65,9 +65,7 @@ fn main() {
     // Import x
 
 
-
 }
-
 
 fn byte_to_bits(byte: u8) -> Vec<bool> {
     let mut bits = vec![];
@@ -77,11 +75,14 @@ fn byte_to_bits(byte: u8) -> Vec<bool> {
     bits
 }
 
-    // let bytes = [0_u8, 1_u8, 2_u8, 3_u8, 4_u8];
-    // for byte in bytes.iter() {
-    //     println!("{:?}", byte_to_bits(*byte));
-    // }
-
+#[test]
+fn test_byte_to_bits() {
+    assert_eq!(byte_to_bits(0_u8), vec![false, false, false, false, false, false, false, false]);
+    assert_eq!(byte_to_bits(1_u8), vec![false, false, false, false, false, false, false, true]);
+    assert_eq!(byte_to_bits(2_u8), vec![false, false, false, false, false, false, true, false]);
+    assert_eq!(byte_to_bits(3_u8), vec![false, false, false, false, false, false, true, true]);
+    assert_eq!(byte_to_bits(4_u8), vec![false, false, false, false, false, true, false, false]);
+}
 
 fn bytes_to_bits(bytes: &[u8]) -> Vec<bool> {
     let mut bits = vec![];
@@ -91,13 +92,19 @@ fn bytes_to_bits(bytes: &[u8]) -> Vec<bool> {
     bits
 }
 
-    // let bytes = [1_u8, 4_u8];
-    // println!("{:?}", bytes_to_bits(&bytes));
+#[test]
+fn test_bytes_to_bits() {
+    assert_eq!(bytes_to_bits(&[1_u8, 3_u8]),
+               vec![false, false, false, false, false, false, false, true,
+                    false, false, false, false, false, false, true, true]);
+}
+
 
 fn hash_to_bits(hash: Hash) -> Vec<bool> {
     bytes_to_bits(hash.as_bytes())
 }
 
-    // for msg in ms.iter() {
-    //     println!("{:?}", hash_to_bits(blake2s_simd::blake2s(msg)));
-    // }
+// #[test]
+// fn test_hash_to_bits(msg: &[u8]) {
+//     println!("{:?}", hash_to_bits(blake2s_simd::blake2s(msg)));
+// }
