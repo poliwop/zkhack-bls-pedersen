@@ -11,10 +11,9 @@ use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use std::io::Write;
 use std::str::FromStr;
-use ark_bls12_381::{Fr, G1Projective};
+use ark_bls12_381::{Fr, G1Projective, G1Affine};
 use ark_ec::{AffineCurve, ProjectiveCurve};
-use ark_ff::{AffineCurve, ProjectiveCurve};
-use ark_ff::Zero;
+use ark_ff::{PrimeField, Zero};
 
 fn main() {
     welcome();
@@ -94,14 +93,16 @@ fn main() {
         vec2.push(field_elm);
     }
 
-    print!("{}", vec[vec.len() - 1]);
+    // print!("{}", vec[vec.len() - 1]);
 
     let mut sum = G1Projective::zero();
     for i in 0..256 {
-        let additive = sigs[i].into_projective().mul(vec2[i]);
+        let additive = sigs[i].into_projective().mul(vec2[i].into_repr());
         sum += additive;
     }
-    print!("{}", sum)
+
+    let affine = G1Affine::from(sum);
+    verify(pk, username.as_bytes(), affine.clone());
 
 }
 
