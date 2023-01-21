@@ -23,25 +23,17 @@ fn main() {
     //     verify(pk, m, *sig);
     // }
 
-    /* Your solution here! */
-    /*
-      let sig = ...;
-      let m = your username;
-      verify(pk, m, sig);
-    */
 
-    // for m in ms.iter() {
-    //     for i in 0..m.len() {
-    //         println!("{:#010b}", m[i]);
-    //     }
-    //     println!();
-    // }
+
 
     // set username
     let username = "poliwop";
+    let username_bytes = username.as_bytes();
+    // let username_bytes = ms[255].clone();
+
     // hash username
-    let (_, h) = hash_to_curve(username.as_bytes());
-    println!("h: {:?}", h);
+    // let (_, h) = hash_to_curve(username_bytes);
+    // println!("h: {:?}", h);
     // compute hashed username as a linear combination of hashes of the leaked usernames
     // using same coefficients, compute signature for my username
 
@@ -63,7 +55,7 @@ fn main() {
     println!("leaked message hashes written to file");
 
     let mut username_file = std::fs::File::create("username_hash.txt").expect("create failed");
-    let username_bits = hash_to_bits(blake2s_simd::blake2s(username.as_bytes()));
+    let username_bits = hash_to_bits(blake2s_simd::blake2s(&*username_bytes));
     let username_str = bits_to_string(username_bits);
     username_file.write_all(username_str.as_bytes()).expect("write failed");
 
@@ -102,7 +94,14 @@ fn main() {
     }
 
     let affine = G1Affine::from(sum);
-    verify(pk, username.as_bytes(), affine.clone());
+    // verify(pk, &*username_bytes, affine.clone());
+    // println!("success!");
+
+
+    let sig = affine.clone();
+    let m = &*username_bytes;
+    verify(pk, m, sig);
+
 
 }
 
